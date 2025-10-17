@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: those-who-threaten-to-quit
+    env: static
+    buildCommand: ""
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: true
