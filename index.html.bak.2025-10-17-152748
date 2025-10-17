@@ -33,11 +33,6 @@
     .footer{margin-top:20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
     .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--muted);font-size:12px}
     @media (max-width:760px){.grid{grid-template-columns:1fr}.controls{grid-template-columns:1fr}}
-    .row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:end}
-  .switch{display:inline-flex;align-items:center;gap:8px}
-  .switch input{accent-color:#4e83ff}
-  .num{width:90px;text-align:center}
-  .download{margin-left:8px}
   </style>
 </head>
 <body>
@@ -61,17 +56,8 @@
       </div>
 
       <div class="controls">
-        <div class="row">
-          <button id="gen" class="btn primary">Generate</button>
-          <label class="switch tiny"><input id="auto" type="checkbox"/> Auto every <input id="ms" class="input num" value="1500"/> ms</label>
-          <div class="tabs" role="tablist" aria-label="Bulk">
-            <div class="tab" id="bulk-25" data-bulk="25">25</div>
-            <div class="tab" id="bulk-50" data-bulk="50">50</div>
-            <div class="tab" id="bulk-200" data-bulk="200">200</div>
-          </div>
-        </div>
+        <button id="gen" class="btn primary">Generate</button>
         <button id="copy" class="btn secondary">Copy</button>
-        <button id="download" class="btn secondary download">Download .txt</button>
         <button id="clear" class="btn ghost">Clear</button>
       </div>
 
@@ -92,22 +78,11 @@
         "Leaving would mean surrendering your collection of half-broken USB cables.",
         "Who else will roll their eyes loud enough to keep morale alive?",
         "Stay for the petty joy of watching management rediscover the same problem you solved in 2021.",
-        "You're the only one who knows the Wi-Fi password. Power like that shouldn’t be wasted.",
+        "You're the only one who knows the Wi‑Fi password. Power like that shouldn’t be wasted.",
         "You can’t leave; the coffee machine finally learned your order.",
         "You’re just one sarcastic comment away from Employee of the Month (unofficially).",
         "Leaving means they win. Don’t give them that plot twist.",
-        "Stay purely out of spite. It’s the most renewable energy source on site.",
-        // --- more petty fuel ---
-        "If you leave, someone will rename your scripts 'FINAL_v7_REAL_FINAL'.",
-        "Your desk plant has put down roots emotionally. Don't traumatize it.",
-        "Your mug is the only thing keeping the kitchenette honest.",
-        "You haven’t finished alphabetising the excuses in the ticket queue.",
-        "Your web filter whitelist requests are the only culture we have.",
-        "If you go, printers will smell the fear.",
-        "Stay so you can say 'told you so' with data and a pie chart.",
-        "You're three eye-rolls away from enlightenment.",
-        "Petty KPI: number of times you mute and unmute for effect — trending up.",
-        "You haven't trained the new guy to fear 'SharePoint' yet."
+        "Stay purely out of spite. It’s the most renewable energy source on site."
       ],
       spite: [
         "If you quit, who will passive-aggressively correct everyone’s ticket notes?",
@@ -119,18 +94,7 @@
         "You can’t abandon your work laptop. It still owes you emotional support.",
         "Your resignation would trigger a company-wide panic — that’s too much satisfaction to give HR.",
         "Stay, if only to keep deleting old tickets marked ‘resolved’ with no resolution.",
-        "Quitting would mean missing the next free pizza lunch — you’ve suffered too much to skip that.",
-        // --- more spite spice ---
-        "You’re the only one who knows which server reboots need a pep talk first.",
-        "The firewall trusts you more than management does — rare privilege.",
-        "If you go, the backlog will unionise.",
-        "Your Outlook rules are the last line between order and inbox-chaos.",
-        "Your VPN glare improves latency by 12%. Proven by vibes.",
-        "You have admin on the label maker. That's real power.",
-        "Stay to witness the seventh rebrand of the same dashboard.",
-        "You still have one 'I told you so' credit left this quarter.",
-        "You’re the human patch Tuesday.",
-        "Leaving would force you to learn new printer drivers. Respect yourself."
+        "Quitting would mean missing the next free pizza lunch — you’ve suffered too much to skip that."
       ]
     };
 
@@ -140,12 +104,8 @@
     const btnGen = document.getElementById('gen');
     const btnCopy = document.getElementById('copy');
     const btnClear = document.getElementById('clear');
-    const btnDownload = document.getElementById('download');
-    const autoChk = document.getElementById('auto');
-    const msInput = document.getElementById('ms');
 
     let mode = 'petty';
-    let timer = null;
     tabs.forEach(t => t.addEventListener('click', () => {
       tabs.forEach(x => x.dataset.active='false');
       t.dataset.active='true';
@@ -157,10 +117,7 @@
     function generate(){
       const name = (who.value || 'Friend').trim();
       const reason = pick(BANK[mode]);
-      const line = `${name}, ${reason}`;
-      out.textContent = line;
-      return line;
-    }, ${reason}`;
+      out.textContent = `${name}, ${reason}`;
     }
 
     function copy(){
@@ -185,46 +142,9 @@
       if(k==='c') copy();
     });
 
-    btnGen.addEventListener('click', generate);
-    btnCopy.addEventListener('click', copy);
-    btnClear.addEventListener('click', clearOut);
-
-    // Auto mode
-    autoChk.addEventListener('change', () => {
-      if(autoChk.checked){
-        const ms = Math.max(250, parseInt(msInput.value, 10) || 1500);
-        timer && clearInterval(timer);
-        timer = setInterval(generate, ms);
-      } else {
-        timer && clearInterval(timer);
-        timer = null;
-      }
-    });
-
-    // Bulk generation and download
-    document.getElementById('bulk-25').addEventListener('click', () => bulk(25));
-    document.getElementById('bulk-50').addEventListener('click', () => bulk(50));
-    document.getElementById('bulk-200').addEventListener('click', () => bulk(200));
-
-    function bulk(n){
-      const lines = [];
-      for(let i=0;i<n;i++){ lines.push(generate()); }
-      out.textContent = lines[lines.length-1];
-    }
-
-    btnDownload.addEventListener('click', () => {
-      const n = 200; // default dump size
-      const lines = [];
-      for(let i=0;i<n;i++){ lines.push(generate()); }
-      const blob = new Blob([lines.join('
-') + '
-'], {type:'text/plain'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'quit-club-reasons.txt';
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-    });
+    btnGen.addEventListener('click',generate);
+    btnCopy.addEventListener('click',copy);
+    btnClear.addEventListener('click',clearOut);
 
     generate();
   </script>
