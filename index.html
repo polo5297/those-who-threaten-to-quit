@@ -85,6 +85,8 @@
   </main>
 
   <script>
+  (function(){
+    // ---- data banks (unchanged) ----
     const BANK = {
       petty: [
         "If you quit now, someone dumber will take your chair and get the same pay.",
@@ -97,7 +99,6 @@
         "You’re just one sarcastic comment away from Employee of the Month (unofficially).",
         "Leaving means they win. Don’t give them that plot twist.",
         "Stay purely out of spite. It’s the most renewable energy source on site.",
-        // --- more petty fuel ---
         "If you leave, someone will rename your scripts 'FINAL_v7_REAL_FINAL'.",
         "Your desk plant has put down roots emotionally. Don't traumatize it.",
         "Your mug is the only thing keeping the kitchenette honest.",
@@ -120,7 +121,6 @@
         "Your resignation would trigger a company-wide panic — that’s too much satisfaction to give HR.",
         "Stay, if only to keep deleting old tickets marked ‘resolved’ with no resolution.",
         "Quitting would mean missing the next free pizza lunch — you’ve suffered too much to skip that.",
-        // --- more spite spice ---
         "You’re the only one who knows which server reboots need a pep talk first.",
         "The firewall trusts you more than management does — rare privilege.",
         "If you go, the backlog will unionise.",
@@ -134,99 +134,104 @@
       ]
     };
 
-    const out = document.getElementById('out');
-    const who = document.getElementById('who');
-    const tabs = Array.from(document.querySelectorAll('.tab'));
-    const btnGen = document.getElementById('gen');
-    const btnCopy = document.getElementById('copy');
-    const btnClear = document.getElementById('clear');
-    const btnDownload = document.getElementById('download');
-    const autoChk = document.getElementById('auto');
-    const msInput = document.getElementById('ms');
+    // Safe helpers
+    const pick = a => a[Math.floor(Math.random()*a.length)];
 
-    let mode = 'petty';
-    let timer = null;
-    tabs.forEach(t => t.addEventListener('click', () => {
-      tabs.forEach(x => x.dataset.active='false');
-      t.dataset.active='true';
-      mode = t.dataset.mode;
-    }));
+    function init(){
+      const out   = document.getElementById('out');
+      const who   = document.getElementById('who') || { value: 'Friend' };
+      const tabs  = Array.from(document.querySelectorAll('.tab[data-mode]'));
+      const btnGen = document.getElementById('gen');
+      const btnCopy = document.getElementById('copy');
+      const btnClear = document.getElementById('clear');
+      const btnDownload = document.getElementById('download'); // may be null on older builds
+      const autoChk = document.getElementById('auto');         // may be null on older builds
+      const msInput = document.getElementById('ms');           // may be null on older builds
 
-    function pick(a){return a[Math.floor(Math.random()*a.length)]}
+      if(!out){ console.error('Missing #out'); return; }
 
-    function generate(){
-      const name = (who.value || 'Friend').trim();
-      const reason = pick(BANK[mode]);
-      const line = `${name}, ${reason}`;
-      out.textContent = line;
-      return line;
-    }, ${reason}`;
-    }
+      let mode = 'petty';
+      let timer = null;
 
-    function copy(){
-      const t = out.textContent.trim();
-      if(!t){ out.textContent = 'Generate something first.'; return; }
-      navigator.clipboard.writeText(t).then(()=>flash('Copied')).catch(()=>flash('Copy failed',true));
-    }
-
-    function clearOut(){ out.textContent = ''; }
-
-    function flash(msg, err){
-      const pill=document.createElement('div');
-      pill.className='pill';
-      if(err) pill.style.borderColor = '#ff6b6b';
-      pill.textContent=msg; document.querySelector('.footer').appendChild(pill);
-      setTimeout(()=>pill.remove(),1500);
-    }
-
-    document.addEventListener('keydown',e=>{
-      const k=e.key.toLowerCase();
-      if(k==='g') generate();
-      if(k==='c') copy();
-    });
-
-    btnGen.addEventListener('click', generate);
-    btnCopy.addEventListener('click', copy);
-    btnClear.addEventListener('click', clearOut);
-
-    // Auto mode
-    autoChk.addEventListener('change', () => {
-      if(autoChk.checked){
-        const ms = Math.max(250, parseInt(msInput.value, 10) || 1500);
-        timer && clearInterval(timer);
-        timer = setInterval(generate, ms);
-      } else {
-        timer && clearInterval(timer);
-        timer = null;
+      // Tone tabs
+      if(tabs.length){
+        tabs.forEach(t => t.addEventListener('click', () => {
+          tabs.forEach(x => x.dataset.active = 'false');
+          t.dataset.active = 'true';
+          mode = t.dataset.mode || mode;
+        }));
       }
-    });
 
-    // Bulk generation and download
-    document.getElementById('bulk-25').addEventListener('click', () => bulk(25));
-    document.getElementById('bulk-50').addEventListener('click', () => bulk(50));
-    document.getElementById('bulk-200').addEventListener('click', () => bulk(200));
+      function generate(){
+        const name = (who.value || 'Friend').trim();
+        const reason = pick(BANK[mode] || BANK.petty);
+        const line = `${name}, ${reason}`;
+        out.textContent = line;
+        return line;
+      }
 
-    function bulk(n){
-      const lines = [];
-      for(let i=0;i<n;i++){ lines.push(generate()); }
-      out.textContent = lines[lines.length-1];
+      function copy(){
+        const t = out.textContent?.trim();
+        if(!t){ out.textContent = 'Generate something first.'; return; }
+        navigator.clipboard.writeText(t).catch(() => {/* ignore */});
+      }
+
+      function clearOut(){ out.textContent = ''; }
+
+      // Wire buttons if present
+      btnGen   && btnGen.addEventListener('click', generate);
+      btnCopy  && btnCopy.addEventListener('click', copy);
+      btnClear && btnClear.addEventListener('click', clearOut);
+
+      // Auto mode if present
+      if(autoChk && msInput){
+        autoChk.addEventListener('change', () => {
+          if(autoChk.checked){
+            const ms = Math.max(250, parseInt(msInput.value,10) || 1500);
+            timer && clearInterval(timer);
+            timer = setInterval(generate, ms);
+          } else {
+            timer && clearInterval(timer);
+            timer = null;
+          }
+        });
+      }
+
+      // Bulk buttons if present
+      const b25 = document.getElementById('bulk-25');
+      const b50 = document.getElementById('bulk-50');
+      const b200 = document.getElementById('bulk-200');
+      function bulk(n){
+        for(let i=0;i<n;i++) generate();
+      }
+      b25 && b25.addEventListener('click', () => bulk(25));
+      b50 && b50.addEventListener('click', () => bulk(50));
+      b200 && b200.addEventListener('click', () => bulk(200));
+
+      // Download if present
+      btnDownload && btnDownload.addEventListener('click', () => {
+        const n = 200;
+        const lines = [];
+        for(let i=0;i<n;i++) lines.push(generate());
+        const blob = new Blob([lines.join('\n')+'\n'], {type:'text/plain'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'quit-club-reasons.txt';
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      // Print one line on load so the box isn’t empty
+      generate();
     }
 
-    btnDownload.addEventListener('click', () => {
-      const n = 200; // default dump size
-      const lines = [];
-      for(let i=0;i<n;i++){ lines.push(generate()); }
-      const blob = new Blob([lines.join('
-') + '
-'], {type:'text/plain'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'quit-club-reasons.txt';
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-    });
-
-    generate();
+    // Ensure DOM is ready before hooking anything
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
   </script>
 </body>
 </html>
