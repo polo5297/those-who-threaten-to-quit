@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Those Who Threaten To Quit Club</title>
+  <style>
+    :root{
+      --bg:#0b1016; --panel:#0f1722; --text:#e9f3ff; --muted:#9fb3c8; --accent:#78e08f; --accent2:#7aa7ff; --ring:#ffe27a; --radius:18px; --shadow:0 12px 36px rgba(0,0,0,.35)
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:radial-gradient(1200px 800px at 15% -20%,#122033 0,#0b1016 60%),var(--bg);color:var(--text);display:grid;place-items:center;padding:24px}
+    .wrap{width:100%;max-width:920px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;backdrop-filter:blur(8px)}
+    h1{margin:0 0 6px;font-size:clamp(26px,3.5vw,40px);letter-spacing:.2px}
+    .subtitle{margin:0 0 18px;color:var(--muted);font-size:14px}
+    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+    .input{width:100%;background:#0c1420;border:1px solid rgba(255,255,255,.1);color:var(--text);padding:12px 14px;border-radius:12px;font-size:14px;outline:none}
+    .badge{font-size:11px;color:var(--muted);opacity:.9;margin-bottom:6px}
+    .stack{display:grid;gap:6px}
+    .tabs{display:inline-grid;grid-auto-flow:column;gap:8px}
+    .tab{padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);color:var(--muted);cursor:pointer}
+    .tab[data-active="true"]{color:#06121a;background:linear-gradient(180deg,var(--ring),#ff9d4d);border-color:transparent;font-weight:700}
+    .controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;margin-top:14px}
+    .btn{appearance:none;border:none;cursor:pointer;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:700;letter-spacing:.2px;transition:transform .06s ease,filter .2s ease;}
+    .btn:active{transform:translateY(1px) scale(.995)}
+    .btn.primary{color:#071218;background:linear-gradient(180deg,var(--accent),#32d17a)}
+    .btn.secondary{color:#071218;background:linear-gradient(180deg,var(--accent2),#4e83ff)}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.12)}
+    .out{margin-top:16px;background:#0d151f;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:18px;min-height:120px;font-size:clamp(18px,2.2vw,22px);line-height:1.45}
+    .tiny{font-size:12px;color:var(--muted)}
+    .footer{margin-top:20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--muted);font-size:12px}
+    @media (max-width:760px){.grid{grid-template-columns:1fr}.controls{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>Those Who Threaten To Quit Club</h1>
+      <p class="subtitle">Severely sarcastic reasons to stay in Byrnecut IT. Because spite and irony can be powerful motivators.</p>
+
+      <div class="grid">
+        <label class="stack">
+          <span class="badge">Your Name (optional)</span>
+          <input id="who" class="input" placeholder="e.g., Jack from Service Desk" />
+        </label>
+        <label class="stack">
+          <span class="badge">Tone</span>
+          <div class="tabs" role="tablist" aria-label="Reason tone">
+            <div class="tab" data-mode="petty" data-active="true" role="tab" tabindex="0" aria-selected="true">Petty</div>
+            <div class="tab" data-mode="spite" role="tab" tabindex="-1" aria-selected="false">Spiteful Sarcasm</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="controls">
+        <button id="gen" class="btn primary">Generate</button>
+        <button id="copy" class="btn secondary">Copy</button>
+        <button id="clear" class="btn ghost">Clear</button>
+      </div>
+
+      <div id="out" class="out" aria-live="polite"></div>
+
+      <div class="footer">
+        <div class="tiny">Press <b>G</b> to generate • <b>C</b> to copy • sarcasm heals morale faster than HR memos.</div>
+        <div class="pill">Petty Power Level: maximum</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const BANK = {
+      petty: [
+        "If you quit now, someone dumber will take your chair and get the same pay.",
+        "You can’t leave until you finish teaching your replacement how to ignore Teams messages properly.",
+        "Leaving would mean surrendering your collection of half-broken USB cables.",
+        "Who else will roll their eyes loud enough to keep morale alive?",
+        "Stay for the petty joy of watching management rediscover the same problem you solved in 2021.",
+        "You're the only one who knows the Wi‑Fi password. Power like that shouldn’t be wasted.",
+        "You can’t leave; the coffee machine finally learned your order.",
+        "You’re just one sarcastic comment away from Employee of the Month (unofficially).",
+        "Leaving means they win. Don’t give them that plot twist.",
+        "Stay purely out of spite. It’s the most renewable energy source on site."
+      ],
+      spite: [
+        "If you quit, who will passive-aggressively correct everyone’s ticket notes?",
+        "You’ve invested too many hours perfecting that ‘I’ll look into it’ tone to throw it away now.",
+        "Don’t deprive the team of your signature disappointed sigh during meetings.",
+        "Staying means you get to witness the next IT meltdown live — front row seating.",
+        "Leaving would make it harder to subtweet your coworkers.",
+        "If you leave, they might promote that one person who says 'synergy' unironically.",
+        "You can’t abandon your work laptop. It still owes you emotional support.",
+        "Your resignation would trigger a company-wide panic — that’s too much satisfaction to give HR.",
+        "Stay, if only to keep deleting old tickets marked ‘resolved’ with no resolution.",
+        "Quitting would mean missing the next free pizza lunch — you’ve suffered too much to skip that."
+      ]
+    };
+
+    const out = document.getElementById('out');
+    const who = document.getElementById('who');
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const btnGen = document.getElementById('gen');
+    const btnCopy = document.getElementById('copy');
+    const btnClear = document.getElementById('clear');
+
+    let mode = 'petty';
+    tabs.forEach(t => t.addEventListener('click', () => {
+      tabs.forEach(x => x.dataset.active='false');
+      t.dataset.active='true';
+      mode = t.dataset.mode;
+    }));
+
+    function pick(a){return a[Math.floor(Math.random()*a.length)]}
+
+    function generate(){
+      const name = (who.value || 'Friend').trim();
+      const reason = pick(BANK[mode]);
+      out.textContent = `${name}, ${reason}`;
+    }
+
+    function copy(){
+      const t = out.textContent.trim();
+      if(!t){ out.textContent = 'Generate something first.'; return; }
+      navigator.clipboard.writeText(t).then(()=>flash('Copied')).catch(()=>flash('Copy failed',true));
+    }
+
+    function clearOut(){ out.textContent = ''; }
+
+    function flash(msg, err){
+      const pill=document.createElement('div');
+      pill.className='pill';
+      if(err) pill.style.borderColor = '#ff6b6b';
+      pill.textContent=msg; document.querySelector('.footer').appendChild(pill);
+      setTimeout(()=>pill.remove(),1500);
+    }
+
+    document.addEventListener('keydown',e=>{
+      const k=e.key.toLowerCase();
+      if(k==='g') generate();
+      if(k==='c') copy();
+    });
+
+    btnGen.addEventListener('click',generate);
+    btnCopy.addEventListener('click',copy);
+    btnClear.addEventListener('click',clearOut);
+
+    generate();
+  </script>
+</body>
+</html>
